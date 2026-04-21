@@ -1,0 +1,6 @@
+com/edulearn/auth/entity/User.class
+com/edulearn/auth/service/impl/AuthServiceImpl.class
+com/edulearn/auth/service/AuthService.class
+com/edulearn/auth/repository/UserRepository.class
+com/edulearn/auth/resource/AuthResource.class
+com/edulearn/auth/AuthServiceApplication.class
