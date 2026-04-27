@@ -1,6 +1,6 @@
-/Users/rishabhpandey/Desktop/eduLearn-demo/course-service/src/main/java/com/edulearn/course/CourseServiceApplication.java
-/Users/rishabhpandey/Desktop/eduLearn-demo/course-service/src/main/java/com/edulearn/course/entity/Course.java
-/Users/rishabhpandey/Desktop/eduLearn-demo/course-service/src/main/java/com/edulearn/course/service/impl/CourseServiceImpl.java
-/Users/rishabhpandey/Desktop/eduLearn-demo/course-service/src/main/java/com/edulearn/course/repository/CourseRepository.java
-/Users/rishabhpandey/Desktop/eduLearn-demo/course-service/src/main/java/com/edulearn/course/service/CourseService.java
-/Users/rishabhpandey/Desktop/eduLearn-demo/course-service/src/main/java/com/edulearn/course/resource/CourseResource.java
+/Users/rishabhpandey/Desktop/edulearn/EduLearn/course-service/src/main/java/com/edulearn/course/resource/CourseResource.java
+/Users/rishabhpandey/Desktop/edulearn/EduLearn/course-service/src/main/java/com/edulearn/course/service/CourseService.java
+/Users/rishabhpandey/Desktop/edulearn/EduLearn/course-service/src/main/java/com/edulearn/course/entity/Course.java
+/Users/rishabhpandey/Desktop/edulearn/EduLearn/course-service/src/main/java/com/edulearn/course/service/impl/CourseServiceImpl.java
+/Users/rishabhpandey/Desktop/edulearn/EduLearn/course-service/src/main/java/com/edulearn/course/repository/CourseRepository.java
+/Users/rishabhpandey/Desktop/edulearn/EduLearn/course-service/src/main/java/com/edulearn/course/CourseServiceApplication.java
