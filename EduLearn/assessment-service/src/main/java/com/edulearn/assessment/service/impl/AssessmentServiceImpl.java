@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+// import java.util.Optional;
 
 @Service
 public class AssessmentServiceImpl implements AssessmentService {
@@ -39,7 +39,8 @@ public class AssessmentServiceImpl implements AssessmentService {
     @Override
     @Transactional
     public Quiz updateQuiz(Long id, Quiz quizUpdate) {
-        Quiz quiz = quizRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
         quiz.setTitle(quizUpdate.getTitle());
         quiz.setDescription(quizUpdate.getDescription());
         quiz.setTimeLimitMinutes(quizUpdate.getTimeLimitMinutes());
@@ -57,14 +58,16 @@ public class AssessmentServiceImpl implements AssessmentService {
     @Override
     @Transactional
     public Quiz publishQuiz(Long id) {
-        Quiz quiz = quizRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
         quiz.setIsPublished(true);
         return quizRepository.save(quiz);
     }
 
     @Override
     public Quiz getQuizById(Long id) {
-        return quizRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
+        return quizRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
     }
 
     @Override
@@ -75,7 +78,8 @@ public class AssessmentServiceImpl implements AssessmentService {
     @Override
     @Transactional
     public Question addQuestion(Long quizId, Question question) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + quizId));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + quizId));
         question.setQuiz(quiz);
         quiz.getQuestions().add(question);
         quizRepository.save(quiz);
@@ -85,8 +89,9 @@ public class AssessmentServiceImpl implements AssessmentService {
     @Override
     @Transactional
     public Attempt startAttempt(Long quizId, Long studentId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + quizId));
-        
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + quizId));
+
         // Check max attempts
         long count = attemptRepository.countByStudentIdAndQuizId(studentId, quizId);
         if (quiz.getMaxAttempts() != null && count >= quiz.getMaxAttempts()) {
@@ -99,28 +104,30 @@ public class AssessmentServiceImpl implements AssessmentService {
         attempt.setStartedAt(LocalDateTime.now());
         attempt.setPassed(false);
         attempt.setScore(0);
-        
+
         return attemptRepository.save(attempt);
     }
 
     @Override
     @Transactional
     public Attempt submitAttempt(Long attemptId, Attempt submission) {
-        Attempt attempt = attemptRepository.findById(attemptId).orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
+        Attempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
         if (attempt.getSubmittedAt() != null) {
             throw new BadRequestException("Attempt already submitted");
         }
 
-        Quiz quiz = quizRepository.findById(attempt.getQuizId()).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + attempt.getQuizId()));
-        
+        Quiz quiz = quizRepository.findById(attempt.getQuizId())
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + attempt.getQuizId()));
+
         // Auto-grading logic
         int totalScore = 0;
         Map<Long, String> userAnswers = submission.getAnswers();
-        
+
         for (Question question : quiz.getQuestions()) {
             String correctAnswer = question.getCorrectAnswer();
             String userAnswer = userAnswers.get(question.getId());
-            
+
             if (correctAnswer != null && correctAnswer.equalsIgnoreCase(userAnswer)) {
                 totalScore += (question.getMarks() != null) ? question.getMarks() : 1;
             }
@@ -129,7 +136,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         attempt.setAnswers(userAnswers);
         attempt.setScore(totalScore);
         attempt.setSubmittedAt(LocalDateTime.now());
-        
+
         if (quiz.getPassingScore() != null) {
             attempt.setPassed(totalScore >= quiz.getPassingScore());
         } else {
