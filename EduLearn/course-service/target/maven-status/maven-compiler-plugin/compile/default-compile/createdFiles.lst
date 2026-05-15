@@ -2,5 +2,7 @@ com/edulearn/course/CourseServiceApplication.class
 com/edulearn/course/resource/CourseResource.class
 com/edulearn/course/repository/CourseRepository.class
 com/edulearn/course/service/CourseService.class
+com/edulearn/course/security/JwtAuthenticationFilter.class
+com/edulearn/course/security/SecurityConfig.class
 com/edulearn/course/service/impl/CourseServiceImpl.class
 com/edulearn/course/entity/Course.class

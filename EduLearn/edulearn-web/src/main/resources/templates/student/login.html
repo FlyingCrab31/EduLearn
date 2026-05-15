@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sign In — EduLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #050508; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .bg-glow { position: fixed; top: 0; left: 0; right: 0; height: 100vh; z-index: -1;
+                   background: radial-gradient(circle at 10% 20%, rgba(99,102,241,0.15) 0%, transparent 40%),
+                               radial-gradient(circle at 90% 80%, rgba(167,139,250,0.15) 0%, transparent 40%); }
+        .login-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+                      padding: 3.5rem; border-radius: 2rem; width: 100%; max-width: 450px;
+                      backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+                      animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; letter-spacing: -0.02em; }
+        p.subtitle { color: #94a3b8; text-align: center; margin-bottom: 2.5rem; font-size: 1.05rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.875rem; font-weight: 600; color: #94a3b8; margin-bottom: 0.5rem; }
+        input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+                padding: 1rem; border-radius: 0.875rem; color: #fff; font-size: 1rem; outline: none;
+                transition: all 0.2s; }
+        input:focus { border-color: #6366f1; background: rgba(255,255,255,0.08); box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
+        .btn { width: 100%; background: linear-gradient(135deg,#6366f1,#a78bfa); color: #fff; border: none;
+               padding: 1.125rem; border-radius: 1rem; font-weight: 700; font-size: 1.05rem; cursor: pointer;
+               margin-top: 1rem; transition: all .2s; box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(99,102,241,0.3); opacity: 0.95; }
+        .btn-google { background: #fff; color: #1f2937; margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: none; }
+        .btn-google:hover { background: #f9fafb; transform: translateY(-2px); color: #000; }
+        .btn-google img { width: 20px; }
+        .divider { margin: 1.75rem 0; position: relative; text-align: center; }
+        .divider::before { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.1); }
+        .divider span { background: #0b0b12; padding: 0 1rem; color: #475569; font-size: 0.75rem; font-weight: 800; position: relative; text-transform: uppercase; letter-spacing: 0.05em; }
+        .alert { padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 500;
+                 background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; text-align: center; }
+        .footer { margin-top: 2.5rem; text-align: center; color: #64748b; font-size: 0.95rem; }
+        .footer a { color: #818cf8; text-decoration: none; font-weight: 600; margin-left: 0.25rem; }
+        .footer a:hover { color: #a78bfa; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="login-card">
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Enter your credentials to access your account</p>
+
+        <div th:if="${error}" class="alert" th:text="${error}"></div>
+        <div th:if="${successMessage}" class="alert" style="background:rgba(16,185,129,0.1); border-color:rgba(16,185,129,0.2); color:#6ee7b7;" th:text="${successMessage}"></div>
+
+        <form th:action="@{/student/login}" method="post">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="name@company.com" required/>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="••••••••" required/>
+            </div>
+            <button type="submit" class="btn">Sign In</button>
+        </form>
+
+        <div class="divider">
+            <span>Or continue with</span>
+        </div>
+
+        <a th:href="@{http://localhost:8080/oauth2/authorization/google}" class="btn btn-google">
+            <img src="https://www.google.com/favicon.ico" alt="Google"/>
+            Google
+        </a>
+
+        <div class="footer">
+            New here? <a th:href="@{/student/register}">Create an account</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Payments — EduLearn Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background:#0f0f14;color:#e2e8f0;min-height:100vh;display:flex}
+        aside{width:240px;background:rgba(255,255,255,0.03);border-right:1px solid rgba(255,255,255,0.08);
+              min-height:100vh;padding:2rem 1rem;flex-shrink:0}
+        aside .brand{font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,#6366f1,#a78bfa);
+                     -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2rem;display:block;padding:0 0.5rem}
+        aside a{display:block;padding:0.65rem 0.75rem;border-radius:0.6rem;color:#94a3b8;
+                text-decoration:none;font-size:0.9rem;margin-bottom:0.25rem;transition:background .15s,color .15s}
+        aside a:hover,aside a.active{background:rgba(99,102,241,0.12);color:#a78bfa}
+        main{flex:1;padding:2rem 2.5rem;overflow-y:auto}
+        h1{font-size:1.75rem;font-weight:700;margin-bottom:1.5rem}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:0.85rem 1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.9rem}
+        th{color:#94a3b8;font-weight:600}
+        tr:hover td{background:rgba(255,255,255,0.02)}
+        .badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:600}
+        .badge-success{background:rgba(34,197,94,0.15);color:#86efac}
+        .badge-pending{background:rgba(234,179,8,0.15);color:#fde68a}
+        .badge-refunded{background:rgba(99,102,241,0.15);color:#a5b4fc}
+        .badge-failed{background:rgba(220,38,38,0.15);color:#fca5a5}
+        .alert{padding:0.75rem 1rem;border-radius:0.5rem;margin-bottom:1rem;
+               background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#fca5a5}
+    </style>
+</head>
+<body>
+<aside>
+    <span class="brand">EduLearn Admin</span>
+    <a th:href="@{/admin/dashboard}">📊 Dashboard</a>
+    <a th:href="@{/admin/users}">👥 Users</a>
+    <a th:href="@{/admin/courses}">📚 Courses</a>
+    <a th:href="@{/admin/enrollments}">📋 Enrollments</a>
+    <a th:href="@{/admin/payments}" class="active">💳 Payments</a>
+    <a th:href="@{/admin/subscriptions}">🔑 Subscriptions</a>
+    <a th:href="@{/admin/certificates}">🎓 Certificates</a>
+    <a th:href="@{/admin/analytics}">📈 Analytics</a>
+    <a th:href="@{/admin/discussions}">💬 Discussions</a>
+    <a th:href="@{/admin/notifications/send}">🔔 Notifications</a>
+</aside>
+<main>
+    <h1>All Payments</h1>
+    <div th:if="${error}" class="alert" th:text="${error}"></div>
+    <table>
+        <thead><tr><th>Transaction ID</th><th>Student</th><th>Course</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr th:each="payment : ${payments?.content ?: payments}">
+            <td th:text="${payment.transactionId}">TXN-001</td>
+            <td th:text="${payment.studentName}">Student</td>
+            <td th:text="${payment.courseName}">Course</td>
+            <td th:text="${'$' + payment.amount}">$0.00</td>
+            <td th:text="${payment.createdAt}">2025-01-01</td>
+            <td>
+                <span class="badge"
+                      th:classappend="${payment.status == 'SUCCESS' ? 'badge-success' : (payment.status == 'PENDING' ? 'badge-pending' : (payment.status == 'REFUNDED' ? 'badge-refunded' : 'badge-failed'))}"
+                      th:text="${payment.status}">STATUS</span>
+            </td>
+        </tr>
+        <tr th:unless="${payments != null}">
+            <td colspan="6" style="color:#64748b;text-align:center;padding:2rem">No payment records found.</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

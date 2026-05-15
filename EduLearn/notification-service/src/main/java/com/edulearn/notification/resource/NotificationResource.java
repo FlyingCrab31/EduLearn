@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/v1/notifications")
 public class NotificationResource {
 
     private final NotificationService notificationService;
@@ -28,12 +28,12 @@ public class NotificationResource {
         return new ResponseEntity<>(notificationService.sendBulkNotification(notifications), HttpStatus.CREATED);
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/student/{userId}")
     public ResponseEntity<List<Notification>> getByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getByUser(userId));
     }
 
-    @GetMapping("/user/{userId}/unread-count")
+    @GetMapping("/student/{userId}/unread-count")
     public ResponseEntity<Long> getUnreadCount(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getUnreadCount(userId));
     }
@@ -44,7 +44,7 @@ public class NotificationResource {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/user/{userId}/read-all")
+    @PutMapping("/student/{userId}/read-all")
     public ResponseEntity<Void> markAllRead(@PathVariable Long userId) {
         notificationService.markAllRead(userId);
         return ResponseEntity.ok().build();

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${lesson != null ? lesson.title + ' — EduLearn' : 'Lesson — EduLearn'}">Lesson — EduLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background:#0f0f14;color:#e2e8f0;min-height:100vh}
+        nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;
+            background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.08)}
+        nav .brand{font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,#6366f1,#a78bfa);
+                   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        nav a{color:#94a3b8;text-decoration:none;margin-left:1.5rem;font-size:0.9rem}
+        .lesson-layout{display:grid;grid-template-columns:1fr 320px;gap:2rem;
+                       max-width:1200px;margin:2rem auto;padding:0 2rem}
+        .video-player{background:#000;border-radius:1rem;aspect-ratio:16/9;overflow:hidden;
+                      border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center}
+        .video-player video{width:100%;height:100%;border-radius:1rem}
+        .lesson-info{margin-top:1.5rem}
+        .lesson-info h1{font-size:1.5rem;font-weight:700;margin-bottom:0.75rem}
+        .lesson-info p{color:#94a3b8;line-height:1.7}
+        .sidebar{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                 border-radius:1rem;padding:1.5rem}
+        .sidebar h2{font-size:1rem;font-weight:700;margin-bottom:1rem}
+        .resource-list a{display:block;padding:0.6rem 0.75rem;border-radius:0.5rem;
+                         color:#a78bfa;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;
+                         background:rgba(167,139,250,0.07);transition:background .2s}
+        .resource-list a:hover{background:rgba(167,139,250,0.15)}
+        .alert{padding:0.75rem 1rem;border-radius:0.5rem;margin:1rem 0;
+               background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#fca5a5}
+        @media(max-width:768px){.lesson-layout{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<nav>
+    <span class="brand">EduLearn</span>
+    <div>
+        <a th:href="@{/student/my-courses}">My Courses</a>
+        <a th:href="@{/student/notifications}">Notifications</a>
+    </div>
+</nav>
+
+<div th:if="${error}" class="alert" style="max-width:1200px;margin:1rem auto;" th:text="${error}"></div>
+
+<div class="lesson-layout" th:if="${lesson != null}">
+    <div>
+        <div class="video-player">
+            <video controls th:if="${lesson.videoUrl != null}" th:src="${lesson.videoUrl}">
+                Your browser does not support the video tag.
+            </video>
+            <p th:unless="${lesson.videoUrl != null}" style="color:#64748b">No video available for this lesson.</p>
+        </div>
+        <div class="lesson-info">
+            <h1 th:text="${lesson.title}">Lesson Title</h1>
+            <p th:text="${lesson.description}">Lesson description goes here.</p>
+            <p th:if="${lesson.articleContent != null}" style="margin-top:1rem;line-height:1.8"
+               th:utext="${lesson.articleContent}"></p>
+        </div>
+    </div>
+    <div class="sidebar">
+        <h2>Resources</h2>
+        <div class="resource-list" th:if="${lesson.resources != null}">
+            <a th:each="res : ${lesson.resources}"
+               th:href="${res.url}" th:text="${res.name}" target="_blank">Resource</a>
+        </div>
+        <p th:unless="${lesson.resources != null}" style="color:#64748b;font-size:0.85rem">No resources attached.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -9,9 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/assessment")
+@RequestMapping("/api/v1")
 public class AssessmentResource {
 
     @Autowired
@@ -55,9 +56,19 @@ public class AssessmentResource {
     }
 
     // Attempt Endpoints
-    @PostMapping("/attempts/start")
-    public ResponseEntity<Attempt> startAttempt(@RequestParam Long quizId, @RequestParam Long studentId) {
-        return ResponseEntity.ok(assessmentService.startAttempt(quizId, studentId));
+    @PostMapping("/attempts")
+    public ResponseEntity<Attempt> submitQuiz(@RequestBody Map<String, Object> payload) {
+        Long quizId = Long.valueOf(payload.get("quizId").toString());
+        Long studentId = Long.valueOf(payload.get("studentId").toString());
+        @SuppressWarnings("unchecked")
+        Map<String, String> rawAnswers = (Map<String, String>) payload.get("answers");
+        
+        java.util.Map<Long, String> answers = new java.util.HashMap<>();
+        if (rawAnswers != null) {
+            rawAnswers.forEach((k, v) -> answers.put(Long.valueOf(k), v));
+        }
+        
+        return ResponseEntity.ok(assessmentService.submitQuiz(quizId, studentId, answers));
     }
 
     @PostMapping("/attempts/{id}/submit")

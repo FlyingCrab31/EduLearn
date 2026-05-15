@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Manage Users — EduLearn Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background:#0f0f14;color:#e2e8f0;min-height:100vh;display:flex}
+        aside{width:240px;background:rgba(255,255,255,0.03);border-right:1px solid rgba(255,255,255,0.08);
+              min-height:100vh;padding:2rem 1rem;flex-shrink:0}
+        aside .brand{font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,#6366f1,#a78bfa);
+                     -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2rem;display:block;padding:0 0.5rem}
+        aside a{display:block;padding:0.65rem 0.75rem;border-radius:0.6rem;color:#94a3b8;
+                text-decoration:none;font-size:0.9rem;margin-bottom:0.25rem;transition:background .15s,color .15s}
+        aside a:hover,aside a.active{background:rgba(99,102,241,0.12);color:#a78bfa}
+        main{flex:1;padding:2rem 2.5rem;overflow-y:auto}
+        h1{font-size:1.75rem;font-weight:700;margin-bottom:1.5rem}
+        .filters{display:flex;gap:0.75rem;margin-bottom:1.5rem}
+        .filters a{padding:0.4rem 1rem;border-radius:999px;font-size:0.85rem;text-decoration:none;
+                   border:1px solid rgba(255,255,255,0.1);color:#94a3b8;transition:all .2s}
+        .filters a.active,.filters a:hover{background:rgba(99,102,241,0.12);color:#a78bfa;border-color:rgba(99,102,241,0.3)}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:0.85rem 1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.9rem}
+        th{color:#94a3b8;font-weight:600}
+        tr:hover td{background:rgba(255,255,255,0.02)}
+        .badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:600}
+        .badge-active{background:rgba(34,197,94,0.15);color:#86efac}
+        .badge-suspended{background:rgba(220,38,38,0.15);color:#fca5a5}
+        .btn-sm{padding:0.35rem 0.85rem;border-radius:0.5rem;font-size:0.8rem;font-weight:600;
+                border:none;cursor:pointer;background:rgba(255,255,255,0.06);color:#e2e8f0;transition:background .2s}
+        .btn-danger{background:rgba(220,38,38,0.15);color:#fca5a5}
+        .btn-sm:hover{background:rgba(255,255,255,0.1)}
+        .alert{padding:0.75rem 1rem;border-radius:0.5rem;margin-bottom:1rem;
+               background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#fca5a5}
+    </style>
+</head>
+<body>
+<aside>
+    <span class="brand">EduLearn Admin</span>
+    <a th:href="@{/admin/dashboard}">📊 Dashboard</a>
+    <a th:href="@{/admin/users}" class="active">👥 Users</a>
+    <a th:href="@{/admin/courses}">📚 Courses</a>
+    <a th:href="@{/admin/enrollments}">📋 Enrollments</a>
+    <a th:href="@{/admin/payments}">💳 Payments</a>
+    <a th:href="@{/admin/subscriptions}">🔑 Subscriptions</a>
+    <a th:href="@{/admin/certificates}">🎓 Certificates</a>
+    <a th:href="@{/admin/analytics}">📈 Analytics</a>
+    <a th:href="@{/admin/discussions}">💬 Discussions</a>
+    <a th:href="@{/admin/notifications/send}">🔔 Notifications</a>
+</aside>
+<main>
+    <h1>Manage Users</h1>
+    <div th:if="${error}" class="alert" th:text="${error}"></div>
+    <div class="filters">
+        <a th:href="@{/admin/users}" th:classappend="${role == null ? 'active' : ''}">All</a>
+        <a th:href="@{/admin/users(role='STUDENT')}" th:classappend="${role == 'STUDENT' ? 'active' : ''}">Students</a>
+        <a th:href="@{/admin/users(role='INSTRUCTOR')}" th:classappend="${role == 'INSTRUCTOR' ? 'active' : ''}">Instructors</a>
+        <a th:href="@{/admin/users(role='ADMIN')}" th:classappend="${role == 'ADMIN' ? 'active' : ''}">Admins</a>
+    </div>
+    <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+        <tr th:each="user : ${users?.content ?: users}">
+            <td th:text="${user.name}">User Name</td>
+            <td th:text="${user.email}">email@example.com</td>
+            <td th:text="${user.role}">STUDENT</td>
+            <td>
+                <span class="badge" th:classappend="${user.status == 'ACTIVE' ? 'badge-active' : 'badge-suspended'}"
+                      th:text="${user.status}">ACTIVE</span>
+            </td>
+            <td style="display:flex;gap:0.5rem;align-items:center">
+                <form method="post" th:action="@{/admin/users/{id}/suspend(id=${user.id})}">
+                    <button type="submit" class="btn-sm">Suspend</button>
+                </form>
+                <form method="post" th:action="@{/admin/users/{id}/delete(id=${user.id})}"
+                      onsubmit="return confirm('Delete this user?')">
+                    <button type="submit" class="btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

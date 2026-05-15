@@ -5,6 +5,7 @@ import com.edulearn.assessment.entity.Question;
 import com.edulearn.assessment.entity.Quiz;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AssessmentService {
     // Quiz lifecycle
@@ -21,6 +22,7 @@ public interface AssessmentService {
     // Attempt lifecycle
     Attempt startAttempt(Long quizId, Long studentId);
     Attempt submitAttempt(Long attemptId, Attempt submission);
+    Attempt submitQuiz(Long quizId, Long studentId, Map<Long, String> answers);
     List<Attempt> getAttemptsByStudent(Long studentId);
     Integer getBestScore(Long studentId, Long quizId);
 }

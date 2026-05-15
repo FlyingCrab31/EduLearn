@@ -20,7 +20,7 @@ import java.util.List;
  * </pre>
  */
 @RestController
-@RequestMapping("/api/preview")
+@RequestMapping("/api/v1/preview")
 public class PreviewResource {
 
     private final LessonService lessonService;

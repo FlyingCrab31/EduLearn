@@ -16,13 +16,31 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
     @Column(nullable = false)
     private String role; // e.g., STUDENT, INSTRUCTOR, ADMIN
 
+    @Column
+    private String fullName;
+
+    @Column
+    private String resetToken;
+
+    @Column
+    private java.time.LocalDateTime resetTokenExpiry;
+
     public User() {}
+
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+
+    public java.time.LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(java.time.LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 
     public User(Long id, String username, String email, String password, String role) {
         this.id = id;

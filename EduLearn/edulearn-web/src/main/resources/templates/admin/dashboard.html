@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Dashboard — EduLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #050508; color: #e2e8f0; min-height: 100vh; }
+        .bg-glow { position: fixed; top: 0; left: 0; right: 0; height: 100vh; z-index: -1;
+                   background: radial-gradient(circle at 10% 20%, rgba(99,102,241,0.1) 0%, transparent 40%),
+                               radial-gradient(circle at 90% 80%, rgba(167,139,250,0.1) 0%, transparent 40%); }
+        nav { display: flex; justify-content: space-between; align-items: center;
+              padding: 1.25rem 4rem; background: rgba(15,15,20,0.7); backdrop-filter: blur(12px);
+              border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 100; }
+        nav .brand { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: #818cf8; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 4rem; }
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.02em; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 3rem; }
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+                     padding: 2.5rem; border-radius: 2rem; backdrop-filter: blur(12px); 
+                     box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); }
+        .stat-card h3 { color: #94a3b8; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .stat-card .value { font-size: 3rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+        .stat-card .trend { font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem; }
+        .trend-up { color: #10b981; }
+        .btn-main { display: inline-block; background: linear-gradient(135deg,#6366f1,#a78bfa); color: #fff;
+                    padding: 1rem 2rem; border-radius: 1rem; font-weight: 700; text-decoration: none; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <nav>
+        <span class="brand">Admin Portal</span>
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}" style="color: #fff; text-decoration: none; margin-left: 2rem;">Dashboard</a>
+            <a th:href="@{/admin/courses}" style="color: #94a3b8; text-decoration: none; margin-left: 2rem;">Courses</a>
+            <a th:href="@{/admin/users}" style="color: #94a3b8; text-decoration: none; margin-left: 2rem;">Users</a>
+        </div>
+    </nav>
+    <div class="container">
+        <p style="color: #818cf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Overview</p>
+        <h1>Welcome Back, Admin</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Students</h3>
+                <div class="value" th:text="${userStats != null ? userStats.totalUsers : '1.2k'}">0</div>
+                <div class="trend trend-up">↑ 12% from last month</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Courses</h3>
+                <div class="value" th:text="${courseStats != null ? courseStats.totalCourses : '48'}">0</div>
+                <div class="trend trend-up">↑ 4 new today</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="value" th:text="${revenueStats != null ? '$' + revenueStats.totalRevenue : '$12,450'}">$0</div>
+                <div class="trend trend-up">↑ 8% growth</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 4rem;">
+            <a th:href="@{/admin/courses}" class="btn-main">Manage Course Inventory</a>
+        </div>
+    </div>
+</body>
+</html>

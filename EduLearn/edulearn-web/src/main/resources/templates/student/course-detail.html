@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Course Details — EduLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #050508; color: #e2e8f0; min-height: 100vh; overflow-x: hidden; }
+        .bg-glow { position: fixed; top: 0; left: 0; right: 0; height: 100vh; z-index: -1;
+                   background: radial-gradient(circle at 80% 20%, rgba(99,102,241,0.1) 0%, transparent 40%),
+                               radial-gradient(circle at 20% 80%, rgba(167,139,250,0.1) 0%, transparent 40%); }
+        nav { display: flex; justify-content: space-between; align-items: center;
+              padding: 1.25rem 4rem; background: rgba(15,15,20,0.7); backdrop-filter: blur(12px);
+              border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 100; }
+        nav .brand { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em;
+                     background: linear-gradient(135deg,#818cf8,#c084fc); 
+                     background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        nav .nav-links a { color: #94a3b8; text-decoration: none; margin-left: 2rem; font-size: 0.95rem; font-weight: 500; transition: color .2s; }
+        nav .nav-links a:hover { color: #fff; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 6rem 4rem; }
+        .course-header { display: grid; grid-template-columns: 1fr 380px; gap: 4rem; margin-bottom: 5rem; }
+        .course-info h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem; line-height: 1.1; letter-spacing: -0.04em; }
+        .course-info .meta { color: #94a3b8; margin-bottom: 2.5rem; font-size: 1.1rem; display: flex; gap: 1rem; }
+        .course-info .description { line-height: 1.8; color: #94a3b8; font-size: 1.2rem; }
+        .sidebar-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+                      border-radius: 2rem; padding: 2.5rem; position: sticky; top: 8rem; backdrop-filter: blur(12px);
+                      box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .sidebar-card .price { font-size: 2.5rem; font-weight: 800; color: #fff; margin-bottom: 2rem; letter-spacing: -0.02em; }
+        .btn { display: inline-block; width: 100%; padding: 1.125rem; border-radius: 1.125rem; font-weight: 700;
+               text-decoration: none; cursor: pointer; border: none; text-align: center;
+               background: linear-gradient(135deg,#6366f1,#a78bfa); color: #fff; font-size: 1.1rem;
+               transition: all 0.2s; box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(99,102,241,0.3); }
+        .lessons-section h2 { font-size: 2rem; font-weight: 800; margin-bottom: 2.5rem; letter-spacing: -0.02em; }
+        .lesson-item { display: flex; align-items: center; padding: 1.25rem 2rem; background: rgba(255,255,255,0.02);
+                      border: 1px solid rgba(255,255,255,0.05); border-radius: 1.25rem; margin-bottom: 1rem; transition: background 0.2s; }
+        .lesson-item:hover { background: rgba(255,255,255,0.04); }
+        .lesson-item .num { width: 36px; height: 36px; border-radius: 10px; background: rgba(99,102,241,0.1);
+                          color: #818cf8; display: flex; align-items: center; justify-content: center;
+                          font-weight: 800; margin-right: 1.5rem; font-size: 0.9rem; }
+        .lesson-item .title { flex: 1; font-weight: 600; font-size: 1.1rem; }
+
+    </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<nav>
+    <span class="brand">EduLearn</span>
+    <div class="nav-links">
+        <a th:href="@{/student/home}">Home</a>
+        <a th:href="@{/student/courses}">Browse</a>
+        <a th:href="@{/student/my-courses}">My Courses</a>
+        <a th:href="@{/student/notifications}">Notifications</a>
+        <a th:href="@{/student/profile}">Profile</a>
+    </div>
+</nav>
+
+<div class="container" th:if="${course != null}">
+    <div class="course-header">
+        <div class="course-info">
+            <h1 th:text="${course.title}">Course Title</h1>
+            <div class="meta" th:text="${'Instructor ID: ' + course.instructorId} + ' · ' + ${course.category} + ' · ' + ${course.level}">
+                Instructor · Category · Level
+            </div>
+            <div class="description" th:text="${course.description}">
+                Course description goes here...
+            </div>
+        </div>
+        <div class="sidebar-card">
+            <div class="price" th:text="${course.price != null ? '$' + course.price : 'Free'}">$0.00</div>
+            <form th:action="@{/student/courses/{id}/enroll(id=${course.courseId})}" method="post">
+                <button type="submit" class="btn">Enroll Now</button>
+            </form>
+            <p style="text-align:center;color:#64748b;margin-top:1.5rem;font-size:0.85rem">
+                Full lifetime access · Certificate of completion
+            </p>
+        </div>
+    </div>
+
+    <div class="lessons-section">
+        <h2>Course Content</h2>
+        <div th:if="${lessons != null and !#lists.isEmpty(lessons)}">
+            <div class="lesson-item" th:each="lesson, stats : ${lessons}">
+                <div class="num" th:text="${stats.count}">1</div>
+                <div class="title" th:text="${lesson.title}">Lesson Title</div>
+                <div style="color:#64748b;font-size:0.85rem" th:text="${lesson.duration + ' min'}">10 min</div>
+            </div>
+        </div>
+        <div th:if="${lessons == null or #lists.isEmpty(lessons)}" style="color:#64748b">
+            No lessons available yet.
+        </div>
+    </div>
+</div>
+</body>
+</html>

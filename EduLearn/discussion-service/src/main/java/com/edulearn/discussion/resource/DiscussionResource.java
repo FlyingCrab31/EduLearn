@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/discussion")
+@RequestMapping("/api/v1/discussions")
 @Tag(name = "Discussion Resource", description = "Endpoints for managing course discussion threads and replies")
 public class DiscussionResource {
 
