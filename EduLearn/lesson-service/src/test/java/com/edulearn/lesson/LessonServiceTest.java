@@ -45,13 +45,13 @@ class LessonServiceTest {
     // Helper factory
     // ─────────────────────────────────────────────────────────────────────────
 
-    private Lesson buildLesson(long id, String title, long courseId, boolean previewable) {
+    private Lesson buildLesson(long id, String title, long courseId, boolean isPreview) {
         Lesson l = new Lesson();
         l.setId(id);
         l.setTitle(title);
         l.setCourseId(courseId);
         l.setOrderIndex((int) id);
-        l.setPreviewable(previewable);
+        l.setIsPreview(isPreview);
         return l;
     }
 
@@ -115,12 +115,12 @@ class LessonServiceTest {
         }
 
         @Test
-        @DisplayName("updateLesson – updates all fields including previewable flag")
+        @DisplayName("updateLesson – updates all fields including isPreview flag")
         void testUpdateLesson_Success() {
             Lesson existing = buildLesson(1, "Old Title", 10, false);
             Lesson updated  = buildLesson(1, "Updated Title", 10, true);
             updated.setDescription("Updated desc");
-            updated.setDuration(45);
+            updated.setDurationMinutes(45);
 
             when(lessonRepository.findById(1L)).thenReturn(Optional.of(existing));
             when(lessonRepository.save(any(Lesson.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -129,8 +129,8 @@ class LessonServiceTest {
 
             assertEquals("Updated Title", result.getTitle());
             assertEquals("Updated desc", result.getDescription());
-            assertEquals(45, result.getDuration());
-            assertTrue(result.isPreviewable(), "previewable flag should be updated");
+            assertEquals(45, result.getDurationMinutes());
+            assertTrue(result.isPreview(), "isPreview flag should be updated");
             verify(lessonRepository, times(1)).save(existing);
         }
 
@@ -165,28 +165,28 @@ class LessonServiceTest {
     class PreviewLessonTests {
 
         @Test
-        @DisplayName("getPreviewLessons – returns only previewable lessons for a course")
+        @DisplayName("getPreviewLessons – returns only isPreview lessons for a course")
         void testGetPreviewLessons_ReturnsPreviewableOnly() {
             Lesson preview1 = buildLesson(1, "What is Java?", 10, true);
             Lesson preview2 = buildLesson(3, "Setting Up IDE", 10, true);
             // lesson 2 (paid) should never appear – repository filters it out
 
-            when(lessonRepository.findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(10L))
+            when(lessonRepository.findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(10L))
                     .thenReturn(Arrays.asList(preview1, preview2));
 
             List<Lesson> result = lessonService.getPreviewLessons(10L);
 
             assertEquals(2, result.size());
-            result.forEach(l -> assertTrue(l.isPreviewable(),
-                    "All returned lessons must be previewable"));
+            result.forEach(l -> assertTrue(l.isPreview(),
+                    "All returned lessons must be isPreview"));
             verify(lessonRepository, times(1))
-                    .findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(10L);
+                    .findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(10L);
         }
 
         @Test
         @DisplayName("getPreviewLessons – returns empty list when course has no preview lessons")
         void testGetPreviewLessons_EmptyWhenNoneMarked() {
-            when(lessonRepository.findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(42L))
+            when(lessonRepository.findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(42L))
                     .thenReturn(Collections.emptyList());
 
             List<Lesson> result = lessonService.getPreviewLessons(42L);
@@ -198,7 +198,7 @@ class LessonServiceTest {
         @Test
         @DisplayName("getPreviewLessons – returns empty list for unknown courseId")
         void testGetPreviewLessons_UnknownCourse() {
-            when(lessonRepository.findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(999L))
+            when(lessonRepository.findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(999L))
                     .thenReturn(Collections.emptyList());
 
             List<Lesson> result = lessonService.getPreviewLessons(999L);
@@ -207,36 +207,36 @@ class LessonServiceTest {
         }
 
         @Test
-        @DisplayName("getPreviewLessonById – returns lesson when it is previewable")
+        @DisplayName("getPreviewLessonById – returns lesson when it is isPreview")
         void testGetPreviewLessonById_Found() {
             Lesson preview = buildLesson(5, "Java Basics Preview", 10, true);
-            when(lessonRepository.findByIdAndPreviewableTrue(5L))
+            when(lessonRepository.findByIdAndIsPreviewTrue(5L))
                     .thenReturn(Optional.of(preview));
 
             Optional<Lesson> result = lessonService.getPreviewLessonById(5L);
 
             assertTrue(result.isPresent());
             assertEquals("Java Basics Preview", result.get().getTitle());
-            assertTrue(result.get().isPreviewable());
+            assertTrue(result.get().isPreview());
         }
 
         @Test
-        @DisplayName("getPreviewLessonById – returns empty for non-previewable lesson (paid content guard)")
+        @DisplayName("getPreviewLessonById – returns empty for non-isPreview lesson (paid content guard)")
         void testGetPreviewLessonById_NotPreviewable() {
-            // The repository returns empty when the lesson exists but previewable=false
-            when(lessonRepository.findByIdAndPreviewableTrue(7L))
+            // The repository returns empty when the lesson exists but isPreview=false
+            when(lessonRepository.findByIdAndIsPreviewTrue(7L))
                     .thenReturn(Optional.empty());
 
             Optional<Lesson> result = lessonService.getPreviewLessonById(7L);
 
             assertFalse(result.isPresent(),
-                    "Should not expose a non-previewable (paid) lesson through the preview API");
+                    "Should not expose a non-isPreview (paid) lesson through the preview API");
         }
 
         @Test
         @DisplayName("getPreviewLessonById – returns empty for completely unknown lesson id")
         void testGetPreviewLessonById_UnknownId() {
-            when(lessonRepository.findByIdAndPreviewableTrue(999L))
+            when(lessonRepository.findByIdAndIsPreviewTrue(999L))
                     .thenReturn(Optional.empty());
 
             Optional<Lesson> result = lessonService.getPreviewLessonById(999L);
@@ -247,42 +247,42 @@ class LessonServiceTest {
         @Test
         @DisplayName("getPreviewLessons – repository is called with correct courseId parameter")
         void testGetPreviewLessons_CorrectRepositoryInteraction() {
-            when(lessonRepository.findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(anyLong()))
+            when(lessonRepository.findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(anyLong()))
                     .thenReturn(Collections.emptyList());
 
             lessonService.getPreviewLessons(77L);
 
             verify(lessonRepository, times(1))
-                    .findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(77L);
+                    .findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(77L);
             verify(lessonRepository, never())
                     .findByCourseIdOrderByOrderIndexAsc(anyLong());
         }
 
         @Test
-        @DisplayName("createLesson – previewable flag is persisted correctly")
+        @DisplayName("createLesson – isPreview flag is persisted correctly")
         void testCreateLesson_WithPreviewableTrue() {
             Lesson lesson = buildLesson(0, "Free Intro", 10, true);
             when(lessonRepository.save(lesson)).thenReturn(lesson);
 
             Lesson created = lessonService.createLesson(lesson);
 
-            assertTrue(created.isPreviewable(),
-                    "Newly created lesson should retain previewable=true");
+            assertTrue(created.isPreview(),
+                    "Newly created lesson should retain isPreview=true");
             verify(lessonRepository).save(lesson);
         }
 
         @Test
-        @DisplayName("createLesson – previewable defaults to false when not set")
+        @DisplayName("createLesson – isPreview defaults to false when not set")
         void testCreateLesson_PreviewableDefaultsFalse() {
-            Lesson lesson = new Lesson(); // previewable not set → defaults false
+            Lesson lesson = new Lesson(); // isPreview not set → defaults false
             lesson.setTitle("Paid Lesson");
             lesson.setCourseId(10L);
             when(lessonRepository.save(lesson)).thenReturn(lesson);
 
             Lesson created = lessonService.createLesson(lesson);
 
-            assertFalse(created.isPreviewable(),
-                    "Lesson should default to previewable=false");
+            assertFalse(created.isPreview(),
+                    "Lesson should default to isPreview=false");
         }
     }
 }

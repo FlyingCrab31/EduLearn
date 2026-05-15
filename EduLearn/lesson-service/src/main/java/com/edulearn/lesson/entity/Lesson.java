@@ -22,7 +22,7 @@ public class Lesson {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private Integer duration; // in minutes
+    private Integer durationMinutes; // in minutes
 
     private Integer orderIndex;
 
@@ -32,8 +32,15 @@ public class Lesson {
      * When {@code true}, this lesson is publicly accessible as a free preview
      * — no enrollment is required.
      */
-    @Column(nullable = false)
+    @Column(name = "previewable", nullable = false)
     private boolean previewable = false;
+
+    @Column(name = "is_preview", nullable = false)
+    private boolean isPreview = false;
+
+    private String contentType; // e.g., VIDEO, ARTICLE, PDF
+
+    private String contentUrl;
 
     public Lesson() {}
 
@@ -46,8 +53,8 @@ public class Lesson {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public Integer getDuration() { return duration; }
-    public void setDuration(Integer duration) { this.duration = duration; }
+    public Integer getDurationMinutes() { return durationMinutes; }
+    public void setDurationMinutes(Integer durationMinutes) { this.durationMinutes = durationMinutes; }
 
     public Integer getOrderIndex() { return orderIndex; }
     public void setOrderIndex(Integer orderIndex) { this.orderIndex = orderIndex; }
@@ -55,6 +62,21 @@ public class Lesson {
     public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
 
+    public boolean isPreview() { return isPreview; }
+    public void setIsPreview(boolean isPreview) { 
+        this.isPreview = isPreview; 
+        this.previewable = isPreview;
+    }
+
     public boolean isPreviewable() { return previewable; }
-    public void setPreviewable(boolean previewable) { this.previewable = previewable; }
+    public void setPreviewable(boolean previewable) { 
+        this.previewable = previewable; 
+        this.isPreview = previewable;
+    }
+
+    public String getContentType() { return contentType; }
+    public void setContentType(String contentType) { this.contentType = contentType; }
+
+    public String getContentUrl() { return contentUrl; }
+    public void setContentUrl(String contentUrl) { this.contentUrl = contentUrl; }
 }

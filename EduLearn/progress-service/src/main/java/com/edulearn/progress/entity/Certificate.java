@@ -1,10 +1,6 @@
 package com.edulearn.progress.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -31,8 +27,8 @@ public class Certificate {
     private String verificationCode;
 
     private String instructorName;
-
     private String courseName;
+    private String studentName;
 
     @PrePersist
     protected void onCreate() {
@@ -44,7 +40,7 @@ public class Certificate {
 
     public Certificate() {}
 
-    public Certificate(Long certificateId, Long studentId, Long courseId, LocalDateTime issuedAt, String certificateUrl, String verificationCode, String instructorName, String courseName) {
+    public Certificate(Long certificateId, Long studentId, Long courseId, LocalDateTime issuedAt, String certificateUrl, String verificationCode, String instructorName, String courseName, String studentName) {
         this.certificateId = certificateId;
         this.studentId = studentId;
         this.courseId = courseId;
@@ -53,6 +49,7 @@ public class Certificate {
         this.verificationCode = verificationCode;
         this.instructorName = instructorName;
         this.courseName = courseName;
+        this.studentName = studentName;
     }
 
     public Long getCertificateId() { return certificateId; }
@@ -71,4 +68,6 @@ public class Certificate {
     public void setInstructorName(String instructorName) { this.instructorName = instructorName; }
     public String getCourseName() { return courseName; }
     public void setCourseName(String courseName) { this.courseName = courseName; }
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
 }

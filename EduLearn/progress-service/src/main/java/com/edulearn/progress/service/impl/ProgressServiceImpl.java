@@ -2,15 +2,16 @@ package com.edulearn.progress.service.impl;
 
 import com.edulearn.progress.entity.Certificate;
 import com.edulearn.progress.entity.Progress;
-import com.edulearn.progress.exception.CertificateNotFoundException;
-import com.edulearn.progress.exception.ProgressNotFoundException;
 import com.edulearn.progress.repository.CertificateRepository;
 import com.edulearn.progress.repository.ProgressRepository;
 import com.edulearn.progress.service.ProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProgressServiceImpl implements ProgressService {
@@ -23,10 +24,10 @@ public class ProgressServiceImpl implements ProgressService {
 
     @Override
     public Progress trackProgress(Long studentId, Long courseId, Long lessonId, Integer watchedSeconds) {
-        Progress progress = progressRepository.findByStudentIdAndLessonId(studentId, lessonId)
-                .orElse(new Progress());
+        Optional<Progress> existing = progressRepository.findByStudentIdAndLessonId(studentId, lessonId);
+        Progress progress = existing.orElse(new Progress());
         
-        if (progress.getProgressId() == null) {
+        if (existing.isEmpty()) {
             progress.setStudentId(studentId);
             progress.setCourseId(courseId);
             progress.setLessonId(lessonId);
@@ -39,70 +40,62 @@ public class ProgressServiceImpl implements ProgressService {
 
     @Override
     public Progress markLessonComplete(Long studentId, Long courseId, Long lessonId, int totalLessonsInCourse) {
-        Progress progress = progressRepository.findByStudentIdAndLessonId(studentId, lessonId)
-                .orElse(new Progress());
-                
-        if (progress.getProgressId() == null) {
+        Optional<Progress> existing = progressRepository.findByStudentIdAndLessonId(studentId, lessonId);
+        Progress progress = existing.orElse(new Progress());
+        
+        if (existing.isEmpty()) {
             progress.setStudentId(studentId);
             progress.setCourseId(courseId);
             progress.setLessonId(lessonId);
-            progress.setWatchedSeconds(0);
         }
         
         progress.setIsCompleted(true);
-        progress = progressRepository.save(progress);
-        
-        // Check if course is fully completed
-        Long completedLessons = progressRepository.countByStudentIdAndCourseIdAndIsCompletedTrue(studentId, courseId);
-        if (completedLessons != null && completedLessons >= totalLessonsInCourse) {
-            // Auto issue certificate if not already exists
-            if (!certificateRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
-                issueCertificate(studentId, courseId, "System Generated", "Course " + courseId);
-            }
-        }
-        
-        return progress;
+        progress.setCompletedAt(LocalDateTime.now());
+        Progress saved = progressRepository.save(progress);
+        return saved;
     }
 
     @Override
     public Double getCourseProgress(Long studentId, Long courseId, int totalLessonsInCourse) {
-        if (totalLessonsInCourse <= 0) return 0.0;
-        Long completedLessons = progressRepository.countByStudentIdAndCourseIdAndIsCompletedTrue(studentId, courseId);
-        return ((double) completedLessons / totalLessonsInCourse) * 100.0;
+        long completedCount = progressRepository.countByStudentIdAndCourseIdAndIsCompleted(studentId, courseId, true);
+        return (double) completedCount / totalLessonsInCourse * 100;
     }
 
     @Override
     public Progress getLessonProgress(Long studentId, Long lessonId) {
-        return progressRepository.findByStudentIdAndLessonId(studentId, lessonId)
-                .orElseThrow(() -> new ProgressNotFoundException("Progress not found for student " + studentId + " and lesson " + lessonId));
+        return progressRepository.findByStudentIdAndLessonId(studentId, lessonId).orElse(null);
     }
 
     @Override
-    public Certificate issueCertificate(Long studentId, Long courseId, String instructorName, String courseName) {
-        if (certificateRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
-            throw new IllegalArgumentException("Certificate already issued for this course.");
-        }
-        
-        Certificate certificate = new Certificate();
-        certificate.setStudentId(studentId);
-        certificate.setCourseId(courseId);
-        certificate.setInstructorName(instructorName);
-        certificate.setCourseName(courseName);
-        certificate.setCertificateUrl("https://edulearn.com/certificates/" + studentId + "/" + courseId);
-        
-        return certificateRepository.save(certificate);
+    public Certificate issueManualCertificate(Long studentId, Long courseId, String instructorName, String courseName, String studentName) {
+        Certificate cert = new Certificate();
+        cert.setStudentId(studentId);
+        cert.setCourseId(courseId);
+        cert.setInstructorName(instructorName);
+        cert.setCourseName(courseName);
+        cert.setStudentName(studentName);
+        cert.setCertificateUrl("https://edulearn.com/certificates/" + UUID.randomUUID().toString());
+        cert.setVerificationCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        return certificateRepository.save(cert);
+    }
+
+    @Override
+    public Certificate updateCertificateName(Long certificateId, String newStudentName) {
+        Certificate cert = certificateRepository.findById(certificateId)
+                .orElseThrow(() -> new RuntimeException("Certificate not found"));
+        cert.setStudentName(newStudentName);
+        return certificateRepository.save(cert);
     }
 
     @Override
     public Certificate getCertificate(Long studentId, Long courseId) {
-        return certificateRepository.findByStudentIdAndCourseId(studentId, courseId)
-                .orElseThrow(() -> new CertificateNotFoundException("Certificate not found for student " + studentId + " and course " + courseId));
+        return certificateRepository.findByStudentIdAndCourseId(studentId, courseId).orElse(null);
     }
 
     @Override
     public Certificate verifyCertificate(String verificationCode) {
         return certificateRepository.findByVerificationCode(verificationCode)
-                .orElseThrow(() -> new CertificateNotFoundException("Invalid verification code: " + verificationCode));
+                .orElseThrow(() -> new RuntimeException("Certificate not found"));
     }
 
     @Override
@@ -111,7 +104,23 @@ public class ProgressServiceImpl implements ProgressService {
     }
 
     @Override
+    public List<Progress> getStudentProgressByCourse(Long studentId, Long courseId) {
+        return progressRepository.findByStudentIdAndCourseId(studentId, courseId);
+    }
+
+    @Override
+    public List<Certificate> getAllCertificates() {
+        return certificateRepository.findAll();
+    }
+
+    @Override
     public List<Certificate> getAllCertificatesByStudent(Long studentId) {
         return certificateRepository.findByStudentId(studentId);
+    }
+
+    @Override
+    public Long getTotalStudyTime(Long studentId) {
+        Long totalSeconds = progressRepository.sumWatchedSecondsByStudentId(studentId);
+        return totalSeconds != null ? totalSeconds : 0L;
     }
 }

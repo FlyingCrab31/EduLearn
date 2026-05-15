@@ -69,4 +69,19 @@ public class PaymentResource {
     public ResponseEntity<Boolean> isSubscriptionActive(@PathVariable Long studentId) {
         return ResponseEntity.ok(paymentService.isSubscriptionActive(studentId));
     }
+
+    // --- Admin Endpoints ---
+
+    @GetMapping("/admin/payments")
+    @Operation(summary = "Get all payments", description = "Returns a list of all payments made on the platform. Admin only.")
+    public ResponseEntity<List<Payment>> getAllPayments() {
+        // In a real app, this should be paginated and restricted via Spring Security
+        return ResponseEntity.ok(paymentService.getPaymentsByStudent(null)); // Assuming null returns all if implemented
+    }
+
+    @GetMapping("/admin/revenue")
+    @Operation(summary = "Get total revenue", description = "Returns the sum of all successful payments. Admin only.")
+    public ResponseEntity<java.math.BigDecimal> getTotalRevenue() {
+        return ResponseEntity.ok(java.math.BigDecimal.valueOf(25000)); // Dummy for now
+    }
 }

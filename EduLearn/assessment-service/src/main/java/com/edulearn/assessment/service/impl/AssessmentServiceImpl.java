@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AssessmentServiceImpl implements AssessmentService {
@@ -63,11 +62,15 @@ public class AssessmentServiceImpl implements AssessmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Quiz getQuizById(Long id) {
-        return quizRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
+        Quiz quiz = quizRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + id));
+        if (quiz.getQuestions() != null) quiz.getQuestions().size(); // Initialize lazy list
+        return quiz;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Quiz> getQuizzesByCourse(Long courseId) {
         return quizRepository.findByCourseId(courseId);
     }
@@ -115,25 +118,67 @@ public class AssessmentServiceImpl implements AssessmentService {
         
         // Auto-grading logic
         int totalScore = 0;
+        int maxPossibleScore = 0;
         Map<Long, String> userAnswers = submission.getAnswers();
         
         for (Question question : quiz.getQuestions()) {
+            int marks = (question.getMarks() != null) ? question.getMarks() : 1;
+            maxPossibleScore += marks;
+            
             String correctAnswer = question.getCorrectAnswer();
             String userAnswer = userAnswers.get(question.getId());
             
             if (correctAnswer != null && correctAnswer.equalsIgnoreCase(userAnswer)) {
-                totalScore += (question.getMarks() != null) ? question.getMarks() : 1;
+                totalScore += marks;
             }
         }
 
+        int percentage = (maxPossibleScore > 0) ? (int) ((double) totalScore / maxPossibleScore * 100) : 0;
+
         attempt.setAnswers(userAnswers);
-        attempt.setScore(totalScore);
+        attempt.setScore(percentage);
         attempt.setSubmittedAt(LocalDateTime.now());
         
         if (quiz.getPassingScore() != null) {
-            attempt.setPassed(totalScore >= quiz.getPassingScore());
+            attempt.setPassed(percentage >= quiz.getPassingScore());
         } else {
-            attempt.setPassed(true); // Default pass if no score set? Or maybe false.
+            attempt.setPassed(true);
+        }
+
+        return attemptRepository.save(attempt);
+    }
+
+    @Override
+    @Transactional
+    public Attempt submitQuiz(Long quizId, Long studentId, Map<Long, String> answers) {
+        Attempt attempt = startAttempt(quizId, studentId);
+        
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + quizId));
+        
+        int totalScore = 0;
+        int maxPossibleScore = 0;
+        for (Question question : quiz.getQuestions()) {
+            int marks = (question.getMarks() != null) ? question.getMarks() : 1;
+            maxPossibleScore += marks;
+
+            String correctAnswer = question.getCorrectAnswer();
+            String userAnswer = answers.get(question.getId());
+            
+            if (correctAnswer != null && correctAnswer.equalsIgnoreCase(userAnswer)) {
+                totalScore += marks;
+            }
+        }
+
+        int percentage = (maxPossibleScore > 0) ? (int) ((double) totalScore / maxPossibleScore * 100) : 0;
+
+        attempt.setAnswers(answers);
+        attempt.setScore(percentage);
+        attempt.setSubmittedAt(LocalDateTime.now());
+        
+        if (quiz.getPassingScore() != null) {
+            attempt.setPassed(percentage >= quiz.getPassingScore());
+        } else {
+            attempt.setPassed(true);
         }
 
         return attemptRepository.save(attempt);

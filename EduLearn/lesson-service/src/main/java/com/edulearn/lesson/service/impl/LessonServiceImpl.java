@@ -32,11 +32,13 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public Optional<Lesson> getLessonById(Long id) {
+        if (id == null) return Optional.empty();
         return lessonRepository.findById(id);
     }
 
     @Override
     public Lesson createLesson(Lesson lesson) {
+        if (lesson == null) throw new IllegalArgumentException("Lesson cannot be null");
         return lessonRepository.save(lesson);
     }
 
@@ -45,10 +47,12 @@ public class LessonServiceImpl implements LessonService {
         return lessonRepository.findById(id).map(existing -> {
             existing.setTitle(updated.getTitle());
             existing.setDescription(updated.getDescription());
-            existing.setDuration(updated.getDuration());
+            existing.setDurationMinutes(updated.getDurationMinutes());
             existing.setOrderIndex(updated.getOrderIndex());
             existing.setCourseId(updated.getCourseId());
-            existing.setPreviewable(updated.isPreviewable());
+            existing.setIsPreview(updated.isPreview());
+            existing.setContentType(updated.getContentType());
+            existing.setContentUrl(updated.getContentUrl());
             return lessonRepository.save(existing);
         }).orElseThrow(() -> new RuntimeException("Lesson not found with id: " + id));
     }
@@ -64,11 +68,11 @@ public class LessonServiceImpl implements LessonService {
      * {@inheritDoc}
      *
      * <p>Delegates directly to the repository derived query so the database
-     * filters on {@code previewable = true} — no post-filter needed in Java.
+     * filters on {@code isPreview = true} — no post-filter needed in Java.
      */
     @Override
     public List<Lesson> getPreviewLessons(Long courseId) {
-        return lessonRepository.findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(courseId);
+        return lessonRepository.findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(courseId);
     }
 
     /**
@@ -80,6 +84,6 @@ public class LessonServiceImpl implements LessonService {
      */
     @Override
     public Optional<Lesson> getPreviewLessonById(Long id) {
-        return lessonRepository.findByIdAndPreviewableTrue(id);
+        return lessonRepository.findByIdAndIsPreviewTrue(id);
     }
 }

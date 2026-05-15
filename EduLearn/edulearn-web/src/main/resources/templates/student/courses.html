@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Browse Courses — EduLearn</title>
+    <meta name="description" content="Browse and search thousands of expert-led courses on EduLearn."/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #050508; color: #e2e8f0; min-height: 100vh; overflow-x: hidden; }
+        .bg-glow { position: fixed; top: 0; left: 0; right: 0; height: 100vh; z-index: -1;
+                   background: radial-gradient(circle at 80% 20%, rgba(99,102,241,0.1) 0%, transparent 40%),
+                               radial-gradient(circle at 20% 80%, rgba(167,139,250,0.1) 0%, transparent 40%); }
+        nav { display: flex; justify-content: space-between; align-items: center;
+              padding: 1.25rem 4rem; background: rgba(15,15,20,0.7); backdrop-filter: blur(12px);
+              border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 100; }
+        nav .brand { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em;
+                     background: linear-gradient(135deg,#818cf8,#c084fc); 
+                     background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        nav .nav-links a { color: #94a3b8; text-decoration: none; margin-left: 2rem; font-size: 0.95rem; font-weight: 500; transition: color .2s; }
+        nav .nav-links a:hover { color: #fff; }
+        .page-header { padding: 6rem 4rem 3rem; max-width: 1300px; margin: 0 auto; }
+        .page-header h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem; }
+        .search-bar { display: flex; gap: 1rem; margin-top: 2rem; max-width: 700px; }
+        .search-bar input { flex: 1; padding: 1rem 1.5rem; background: rgba(255,255,255,0.03);
+                          border: 1px solid rgba(255,255,255,0.08); border-radius: 1.25rem;
+                          color: #fff; font-size: 1.1rem; outline: none; backdrop-filter: blur(8px); }
+        .search-bar input:focus { border-color: #6366f1; background: rgba(255,255,255,0.05); }
+        .btn { display: inline-block; padding: 0.875rem 2rem; border-radius: 1rem; font-weight: 700;
+               text-decoration: none; cursor: pointer; border: none;
+               background: linear-gradient(135deg,#6366f1,#a78bfa); color: #fff; font-size: 1rem;
+               transition: all 0.2s; box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(99,102,241,0.3); }
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                      gap: 2.5rem; padding: 0 4rem 6rem; max-width: 1300px; margin: 0 auto; }
+        .course-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+                       border-radius: 1.5rem; padding: 2rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                       position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .course-card:hover { transform: translateY(-10px); border-color: rgba(99,102,241,0.3); background: rgba(255,255,255,0.04); box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
+        .course-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #fff; }
+        .course-card .meta { font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem; }
+        .course-card .price { font-weight: 800; color: #a78bfa; margin-top: auto; font-size: 1.25rem; padding-top: 1.5rem; }
+
+        .empty{text-align:center;padding:4rem;color:#64748b}
+    </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<nav>
+    <span class="brand">EduLearn</span>
+    <div class="nav-links">
+        <a th:href="@{/student/home}">Home</a>
+        <a th:href="@{/student/courses}">Browse</a>
+        <a th:href="@{/student/my-courses}">My Courses</a>
+        <a th:href="@{/student/notifications}">Notifications</a>
+        <a th:href="@{/student/profile}">Profile</a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <h1>Browse Courses</h1>
+    <form method="get" th:action="@{/student/courses/search}" class="search-bar">
+        <input type="text" name="q" placeholder="Search by keyword, topic, or instructor…"
+               th:value="${query}"/>
+        <button type="submit" class="btn">Search</button>
+    </form>
+    <div th:if="${error}" class="alert" th:text="${error}"></div>
+</div>
+
+<div class="course-grid" th:if="${courses != null}">
+    <div class="course-card" th:each="course : ${courses.content ?: courses}">
+        <h3 th:text="${course.title}">Course Title</h3>
+        <p class="meta" th:text="${'Instructor ID: ' + course.instructorId} + ' · ' + (${course.category} ?: 'General')">Instructor · Category</p>
+        <p class="meta" th:text="${course.level ?: 'All levels'}">Level</p>
+        <p class="price" th:text="${course.price != null ? '$' + course.price : 'Free'}">Free</p>
+        <a class="btn" style="margin-top:1rem;width:100%;text-align:center;"
+           th:href="@{/student/courses/{id}(id=${course.courseId})}">View Course</a>
+    </div>
+</div>
+
+<div class="empty" th:if="${courses == null or (courses.content != null and #lists.isEmpty(courses.content))}">
+    <p>No courses found. Try a different search.</p>
+</div>
+</body>
+</html>

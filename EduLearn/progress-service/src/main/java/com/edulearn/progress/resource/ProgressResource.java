@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @Tag(name = "Progress & Certificates", description = "Endpoints for tracking progress and issuing certificates")
 public class ProgressResource {
 
@@ -68,6 +68,43 @@ public class ProgressResource {
     public ResponseEntity<List<Progress>> getAllProgressByStudent(@PathVariable Long studentId) {
         List<Progress> progressList = progressService.getAllProgressByStudent(studentId);
         return ResponseEntity.ok(progressList);
+    }
+
+    @Operation(summary = "Get all progress records for a student in a course")
+    @GetMapping("/progress/student/{studentId}/course/{courseId}")
+    public ResponseEntity<List<Progress>> getProgressByStudentAndCourse(
+            @PathVariable Long studentId,
+            @PathVariable Long courseId) {
+        return ResponseEntity.ok(progressService.getStudentProgressByCourse(studentId, courseId));
+    }
+
+    @Operation(summary = "Get all issued certificates (Admin)")
+    @GetMapping("/certificates")
+    public ResponseEntity<List<Certificate>> getAllCertificates() {
+        return ResponseEntity.ok(progressService.getAllCertificates());
+    }
+
+    @Operation(summary = "Manually issue a certificate")
+    @PostMapping("/certificates/issue")
+    public ResponseEntity<Certificate> issueCertificate(@RequestBody Map<String, Object> payload) {
+        Long studentId = Long.valueOf(payload.get("studentId").toString());
+        Long courseId = Long.valueOf(payload.get("courseId").toString());
+        String instructorName = payload.get("instructorName").toString();
+        String courseName = payload.get("courseName").toString();
+        String studentName = payload.get("studentName").toString();
+        
+        Certificate certificate = progressService.issueManualCertificate(studentId, courseId, instructorName, courseName, studentName);
+        return ResponseEntity.ok(certificate);
+    }
+
+    @Operation(summary = "Update student name on a certificate")
+    @PutMapping("/certificates/{id}/name")
+    public ResponseEntity<Certificate> updateCertificateName(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> payload) {
+        String newName = payload.get("newName");
+        Certificate certificate = progressService.updateCertificateName(id, newName);
+        return ResponseEntity.ok(certificate);
     }
 
     @Operation(summary = "Get a certificate for a completed course")

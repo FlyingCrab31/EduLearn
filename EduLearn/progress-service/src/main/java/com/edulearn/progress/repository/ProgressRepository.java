@@ -14,7 +14,10 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
     
     Optional<Progress> findByStudentIdAndLessonId(Long studentId, Long lessonId);
     
-    Long countByStudentIdAndCourseIdAndIsCompletedTrue(Long studentId, Long courseId);
+    long countByStudentIdAndCourseIdAndIsCompleted(Long studentId, Long courseId, boolean isCompleted);
     
     List<Progress> findByStudentId(Long studentId);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT SUM(p.watchedSeconds) FROM Progress p WHERE p.studentId = :studentId")
+    Long sumWatchedSecondsByStudentId(Long studentId);
 }

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Progress — EduLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background:#0f0f14;color:#e2e8f0;min-height:100vh}
+        nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;
+            background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.08)}
+        nav .brand{font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,#6366f1,#a78bfa);
+                   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        nav a{color:#94a3b8;text-decoration:none;margin-left:1.5rem;font-size:0.9rem}
+        .container{max-width:900px;margin:3rem auto;padding:0 2rem}
+        h1{font-size:1.75rem;font-weight:700;margin-bottom:2rem}
+        .progress-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                       border-radius:1rem;padding:1.5rem;margin-bottom:1.5rem}
+        .progress-card h3{font-size:1rem;font-weight:600;margin-bottom:1rem}
+        .progress-bar-wrap{background:rgba(255,255,255,0.08);border-radius:999px;height:8px;overflow:hidden}
+        .progress-bar{height:8px;border-radius:999px;
+                      background:linear-gradient(90deg,#6366f1,#a78bfa);transition:width 0.6s}
+        .progress-pct{font-size:0.85rem;color:#94a3b8;margin-top:0.4rem}
+        .lesson-row{display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;
+                    border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.9rem}
+        .badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:600}
+        .badge-done{background:rgba(34,197,94,0.15);color:#86efac}
+        .badge-pending{background:rgba(234,179,8,0.15);color:#fde68a}
+        .btn-cert{display:inline-block;margin-top:1rem;padding:0.6rem 1.5rem;border-radius:0.75rem;
+                  font-weight:600;text-decoration:none;
+                  background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;font-size:0.9rem}
+        .alert{padding:0.75rem 1rem;border-radius:0.5rem;margin-bottom:1rem;
+               background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#fca5a5}
+    </style>
+</head>
+<body>
+<nav>
+    <span class="brand">EduLearn</span>
+    <div>
+        <a th:href="@{/student/my-courses}">My Courses</a>
+        <a th:href="@{/student/notifications}">Notifications</a>
+    </div>
+</nav>
+<div class="container">
+    <h1>Course Progress</h1>
+    <div th:if="${error}" class="alert" th:text="${error}"></div>
+    <div th:if="${progress != null}">
+        <div class="progress-card">
+            <h3>Overall Completion</h3>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar"
+                     th:style="'width:' + (${progress.completionPercent} ?: 0) + '%'"></div>
+            </div>
+            <p class="progress-pct" th:text="${progress.completionPercent ?: 0} + '% complete'">0% complete</p>
+            <a class="btn-cert" th:if="${progress.completionPercent == 100}"
+               th:href="@{/student/certificates/{id}(id=${courseId})}">
+                🎓 Download Certificate
+            </a>
+        </div>
+        <div class="progress-card">
+            <h3>Lesson Breakdown</h3>
+            <div th:each="lesson : ${progress.lessons}" class="lesson-row">
+                <span class="badge" th:classappend="${lesson.completed ? 'badge-done' : 'badge-pending'}"
+                      th:text="${lesson.completed ? 'Done' : 'In Progress'}">Done</span>
+                <span th:text="${lesson.lessonTitle}">Lesson Title</span>
+                <span style="margin-left:auto;color:#64748b;font-size:0.8rem"
+                      th:text="${lesson.watchedSeconds ?: 0} + 's watched'">0s watched</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -20,11 +20,11 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
      * Returns only the lessons that are marked as free-preview for a given course,
      * ordered by their display position.
      */
-    List<Lesson> findByCourseIdAndPreviewableTrueOrderByOrderIndexAsc(Long courseId);
+    List<Lesson> findByCourseIdAndIsPreviewTrueOrderByOrderIndexAsc(Long courseId);
 
     /**
      * Finds a single lesson by id only if it is marked as previewable.
      * Used to guard the preview endpoint against non-preview lesson access.
      */
-    Optional<Lesson> findByIdAndPreviewableTrue(Long id);
+    Optional<Lesson> findByIdAndIsPreviewTrue(Long id);
 }

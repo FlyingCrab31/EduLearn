@@ -15,7 +15,11 @@ public interface ProgressService {
     
     Progress getLessonProgress(Long studentId, Long lessonId);
     
-    Certificate issueCertificate(Long studentId, Long courseId, String instructorName, String courseName);
+    List<Progress> getStudentProgressByCourse(Long studentId, Long courseId);
+    
+    Certificate issueManualCertificate(Long studentId, Long courseId, String instructorName, String courseName, String studentName);
+    
+    Certificate updateCertificateName(Long certificateId, String newStudentName);
     
     Certificate getCertificate(Long studentId, Long courseId);
     
@@ -23,5 +27,9 @@ public interface ProgressService {
     
     List<Progress> getAllProgressByStudent(Long studentId);
     
+    List<Certificate> getAllCertificates();
+    
     List<Certificate> getAllCertificatesByStudent(Long studentId);
+    
+    Long getTotalStudyTime(Long studentId);
 }

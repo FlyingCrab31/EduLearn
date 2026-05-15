@@ -39,4 +39,49 @@ public class CourseServiceImpl implements CourseService {
     public List<Course> getAllPublishedCourses() {
         return courseRepository.findByIsPublishedTrue();
     }
+
+    @Override
+    public List<Course> getFeaturedCourses() {
+        // Just return the first few published courses for now
+        return courseRepository.findByIsPublishedTrue().stream().limit(6).collect(Collectors.toList());
+    }
+
+    @Override
+    public Course getCourseById(Long id) {
+        return courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found"));
+    }
+
+    @Override
+    public Course createCourse(Course course) {
+        return courseRepository.save(course);
+    }
+
+    @Override
+    public Course updateCourse(Long id, Course courseDetails) {
+        Course course = getCourseById(id);
+        course.setTitle(courseDetails.getTitle());
+        course.setDescription(courseDetails.getDescription());
+        course.setCategory(courseDetails.getCategory());
+        course.setLevel(courseDetails.getLevel());
+        course.setPrice(courseDetails.getPrice());
+        course.setThumbnailUrl(courseDetails.getThumbnailUrl());
+        return courseRepository.save(course);
+    }
+
+    @Override
+    public void deleteCourse(Long id) {
+        courseRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Course> getCoursesByInstructor(Long instructorId) {
+        return courseRepository.findByInstructorId(instructorId);
+    }
+
+    @Override
+    public void publishCourse(Long id) {
+        Course course = getCourseById(id);
+        course.setIsPublished(true);
+        courseRepository.save(course);
+    }
 }
